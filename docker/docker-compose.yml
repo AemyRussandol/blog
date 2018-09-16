@@ -1,0 +1,45 @@
+version: "2"
+
+services:
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: mysecretpassword
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+    expose:
+      - 3306
+    volumes:
+      - database:/var/lib/mysql
+    networks:
+      - default
+
+  php_apache:
+    build: ./php_apache
+    links:
+      - mysql
+    volumes:
+      - ../site:/var/www/html
+      - ./php_apache/php.ini-development:/usr/local/etc/php/conf.d/custom.ini
+    ports:
+      - 8084:80
+    networks:
+      - default
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.6
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: mysecretpassword
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+    links:
+      - mysql:db
+    ports:
+      - 8081:80
+    networks:
+      - default
+
+volumes:
+  database:
